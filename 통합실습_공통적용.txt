@@ -1,0 +1,224 @@
+github 강사님
+yaksoo39 공유 및 팀원사진 등록
+yaksoo39 깃허브
+Linux(깡통) 
+https://drive.google.com/file/d/1voAqZzesSpnsb5TGJtSvXv9X_2upWSDa/view
+http://bitly.kr/MJf6
+
+   
+
+-- 윈도우 hosts
+15.164.144.60   cm.com cm
+15.164.146.204  nn.com nn
+15.164.150.21   dn1.com dn1
+15.164.159.227  dn2.com dn2
+15.164.161.36  dn3.com dn3
+
+$ systemctl status firewalld
+$ systemctl disable firewalld
+
+1. swapness 설정
+sudo vi /etc/sysctl.conf --> vm.swappiness = 1
+
+$ cat /proc/sys/vm/swappiness
+30
+$ sudo sysctl -w vm.swappiness=1
+vm.swappiness = 1
+$ cat /proc/sys/vm/swappiness
+1
+
+2. hugepage disable 설정
+sudo vi /etc/rc.local
+echo 'echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag' >> /etc/rc.local
+echo 'echo 'never'> /sys/kernel/mm/transparent_hugepage/enabled' >> /etc/rc.local
+sudo chmod 755 /etc/rc.d/rc.local
+
+cat /sys/kernel/mm/transparent_hugepage/defrag
+always madvise [never]
+cat /sys/kernel/mm/transparent_hugepage/enabled
+always madvise [never]
+
+3. hosts 설정
+sudo vi /etc/hosts 에 아래 추가
+
+172.31.4.33 cm.com cm
+172.31.15.47 nn.com nn
+172.31.5.235 dn1.com dn1
+172.31.6.174 dn2.com dn2
+172.31.10.17 dn3.com dn3
+
+각각의 노드마다 다르게
+sudo vi /etc/hostname
+dn1.com
+
+4. selinux disabled
+sudo vi /etc/selinux/config -> selinux=disabled
+
+5. yum repo 설정
+sudo vi /etc/yum.repos.d/cloudera-manager.repo 후 아래 붙여넣기
+
+[cloudera-manager]
+# Packages for Cloudera Manager, Version 5, on RedHat or CentOS 7 x86_64           	  
+name=Cloudera Manager
+baseurl=https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/5.15.2/
+gpgkey =https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/RPM-GPG-KEY-cloudera    
+gpgcheck = 1
+
+6. jdk & jdbc 설치
+sudo yum install java-1.8.0-openjdk-devel.x86_64
+
+cd ~
+sudo yum install wget
+wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz
+tar zxvf mysql-connector-java-5.1.46.tar.gz
+sudo mkdir -p /usr/share/java/
+cd mysql-connector-java-5.1.46
+sudo cp mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar
+
+7. Show the nscd service is running
+nscd 설치는 필수는 아님. 다만 도메인 룩업을 많이 할 경우 nscd 에서 캐싱을 해 주기 때문에 name server 의 부하를 줄여 줄 수 있다.
+
+$ sudo systemctl status nscd
+Unit nscd.service could not be found.
+$ sudo yum install -y nscd
+$ sudo systemctl start nscd
+$ sudo systemctl status nscd
+$ sudo systemctl enable nscd
+
+-----------------------------------------------------------------------------
+8. Show the ntpd service is running
+ntpd는 ntp 서버를 참조해 시스템 클록을 보정하면서 클라이언트에 시간을 제공하는 데몬
+
+$ sudo systemctl status ntp
+Unit ntp.service could not be found.
+$ sudo yum install -y ntp
+$ sudo systemctl start ntpd
+$ sudo systemctl status ntpd
+$ sudo systemctl disable chronyd
+Removed symlink /etc/systemd/system/multi-user.target.wants/chronyd.service.
+$ sudo systemctl enable ntpd
+$ ntpq -p
+
+sudo passwd centos
+   비밀번호 training
+sudo vi /etc/ssh/sshd_config
+   change -> PasswordAuthentication yes
+sudo systemctl restart sshd.service
+
+
+7. 재기동
+sudo shutdown -r now
+
+ssh centos@cm   .................................
+
+------------------------------------------------------------------
+
+8. MariaDB  설치
+sudo yum install mariadb-server
+cd /usr/bin
+ll
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
+sudo ./mysql_secure_installation
+
+계정 및 데이터 베이스 생성
+mysql -u root -p
+CREATE DATABASE scm DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON scm.* TO 'scm-user'@'%' IDENTIFIED BY 'somepassword';
+CREATE DATABASE amon DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON amon.* TO 'amon-user'@'%' IDENTIFIED BY 'somepassword';
+CREATE DATABASE rmon DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON rmon.* TO 'rmon-user'@'%' IDENTIFIED BY 'somepassword';
+CREATE DATABASE hue DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON hue.* TO 'hue-user'@'%' IDENTIFIED BY 'somepassword';
+CREATE DATABASE metastore DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON metastore.* TO 'metastore-user'@'%' IDENTIFIED BY 'somepassword';
+CREATE DATABASE sentry DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON sentry.* TO 'sentry-user'@'%' IDENTIFIED BY 'somepassword';
+CREATE DATABASE oozie DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON oozie.* TO 'oozie-user'@'%' IDENTIFIED BY 'somepassword';
+FLUSH PRIVILEGES;
+SHOW DATABASES;
+EXIT;
+
+sudo yum install cloudera-manager-server cloudera-manager-daemons
+
+sudo /usr/share/cmf/schema/scm_prepare_database.sh mysql scm scm-user somepassword
+
+sudo systemctl start cloudera-scm-server
+
+sudo systemctl status cloudera-scm-server
+
+http://cm:7180
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2일차
+
+sudo useradd -G wheel training
+sudo useradd -G wheel training1
+sudo useradd -G wheel training2
+sudo useradd -G wheel training3
+sudo useradd -G wheel training4
+
+sudo passwd training
+sudo passwd training1
+sudo passwd training2
+sudo passwd training3
+sudo passwd training4
+
+sudo cat /etc/passwd
+
+
+
+
+su training3
+
+scp host -> cm public ip 
+
+sudo -i su -l hdfs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
