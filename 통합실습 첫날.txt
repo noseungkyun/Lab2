@@ -1,0 +1,33 @@
+●
+
+-- 윈도우 hosts
+15.164.144.60   cm.com cm
+15.164.146.204  nn.com nn
+15.164.150.21   dn1.com dn1
+15.164.159.227  dn2.com dn2
+15.164.161.36  dn3.com dn3
+
+
+
+
+[ALL NODE]
+1. Check vm.swappiness on 
+o Set the value to 1 if necessary
+vm.swappiness = 0   스왑 사용안함
+vm.swappiness = 1   스왑 사용 최소화
+vm.swappiness = 60  기본값
+vm.swappiness = 100 적극적으로 스왑 사용
+→ 메모리 여유가 충분할 때 성능향상을 위해 vm.swappiness = 10 정도를 권고하는 경우가 있음
+
+$ cat /proc/sys/vm/swappiness
+30
+
+$ sudo sysctl -w vm.swappiness=1
+vm.swappiness = 1
+
+$ cat /proc/sys/vm/swappiness
+1
+
+
+systemctl status firewalld
+    # systemctl disable firewalld
